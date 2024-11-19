@@ -15,7 +15,7 @@ const MainDashboard = () => {
               alt="Card Image"
             />
             <div className="p-4">
-              <h2 className="text-xl font-bold text-center">Certificate</h2>
+              <h2 className="text-xl font-bold text-center">Certificate Sender</h2>
               
             </div>
           </Link>
