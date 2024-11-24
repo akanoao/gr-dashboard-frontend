@@ -27,95 +27,100 @@ const MainDashboard = () => {
 
 export default MainDashboard;*/
 
-import React from "react";
-import { Grid, Card, Typography, Box } from "@mui/material";
+
+import React from 'react';
+import { Box, Typography } from '@mui/material';
 
 const MainDashboard: React.FC = () => {
   const cards = Array(7).fill({
     title: "Certificate Sender",
     description: "Send bulk certificates easily",
-  });
+  }); // Array for 7 cards (4 in the first row, 3 in the second)
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Grid container spacing={2} justifyContent="center">
+    <Box sx={{ padding: 4 }}>
+      {/* Card Container */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap', // Allows wrapping to the next line
+          gap: 2,
+          justifyContent: 'center', // Align cards to the center
+        }}
+      >
         {cards.map((card, index) => (
-          <Grid
-            item
-            xs={12}
-            sm={6}
-            md={3} // For 4 cards per row in the first row
-            lg={3}
+          <Box
             key={index}
             sx={{
-              display: index < 4 || index >= 4 ? "block" : "none", // Adjust visibility
+              width: { xs: '60%', sm: '23%' }, // 23% width ensures 4 cards fit in one row
+              height: '220px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: 3,
+              borderRadius: 12,
+              bgcolor: 'background.paper',
+              padding: 3,
+              transition: '0.3s', // Smooth transition for hover effect
+              '&:hover': {
+                bgcolor: '#e3f2fd', // Light blue background on hover
+                cursor: 'pointer', // Change cursor to pointer on hover
+              },
             }}
           >
-            <Card
+            {/* Triangle */}
+            <Box
               sx={{
-                p: 3,
-                textAlign: "center",
-                height: "100%",
-                backgroundColor: "#f5f5f5", // Light gray background
+                width: 0,
+                height: 0,
+                borderLeft: '25px solid transparent',
+                borderRight: '25px solid transparent',
+                borderBottom: '40px solid #e0e0e0',
+                marginBottom: 1, // Space below the triangle
+              }}
+            ></Box>
+
+            {/* Circle and Square Container */}
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                width: '60%',
+                gap: 3, // Controls the spacing between circle and square
+                marginBottom: 2,
               }}
             >
+              {/* Square */}
               <Box
                 sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: 150,
-                  gap: 2,
-                  mb: 2,
+                  width: '50px',
+                  height: '45px',
+                  backgroundColor: '#e0e0e0',
                 }}
-              >
-                {/* Triangle */}
-                <Box
-                  sx={{
-                    width: 0,
-                    height: 0,
-                    borderLeft: "25px solid transparent",
-                    borderRight: "25px solid transparent",
-                    borderBottom: "45px solid #e0e0e0",
-                  }}
-                />
-                <Box
-                  sx={{
-                    display: "flex",
-                    justifyContent: "center",
-                    gap: 3,
-                  }}
-                >
-                  {/* Square */}
-                  <Box
-                    sx={{
-                      width: 50,
-                      height: 50,
-                      backgroundColor: "#e0e0e0",
-                    }}
-                  />
-                  {/* Circle */}
-                  <Box
-                    sx={{
-                      width: 50,
-                      height: 50,
-                      backgroundColor: "#e0e0e0",
-                      borderRadius: "50%",
-                    }}
-                  />
-                </Box>
-              </Box>
-              <Typography variant="h6" sx={{ mt: 2 }}>
-                {card.title}
-              </Typography>
-              <Typography variant="body2" color="text.secondary">
-                {card.description}
-              </Typography>
-            </Card>
-          </Grid>
+              ></Box>
+
+              {/* Circle */}
+              <Box
+                sx={{
+                  width: '50px',
+                  height: '45px',
+                  borderRadius: '50%',
+                  backgroundColor: '#e0e0e0',
+                }}
+              ></Box>
+            </Box>
+
+            {/* Text Content */}
+            <Typography variant="h6" fontWeight="bold" align="center">
+              {card.title}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" align="center">
+              {card.description}
+            </Typography>
+          </Box>
         ))}
-      </Grid>
+      </Box>
     </Box>
   );
 };
