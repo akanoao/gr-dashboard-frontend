@@ -1,11 +1,18 @@
 {
+<<<<<<< HEAD
   
+=======
+
+>>>>>>> 465fd2fad2a85c5fdbb4b2bbe115316f192b0fc3
     "build": {
       "env": {
         "NODE_ENV": "production"
       }
     },
+<<<<<<< HEAD
     
+=======
+>>>>>>> 465fd2fad2a85c5fdbb4b2bbe115316f192b0fc3
     "rewrites": [
       {
         "source": "/(.*)",
