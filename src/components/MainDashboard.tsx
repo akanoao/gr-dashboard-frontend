@@ -35,7 +35,7 @@ const MainDashboard: React.FC = () => {
   const cards = Array(11).fill({
     title: "Certificate Sender",
     description: "Send bulk certificates easily",
-  }); // Array for 7 cards (4 in the first row, 3 in the second)
+  }); 
 
   return (
     <Box sx={{ padding: 4 }}>
@@ -66,7 +66,7 @@ const MainDashboard: React.FC = () => {
               padding: 3,
               transition: '0.3s', // Smooth transition for hover effect
               '&:hover': {
-                bgcolor: 'background.paper',
+                bgcolor: '#f5f5f5',
                 borderColor: '#a0a0a0', 
                 cursor: 'pointer', // Change cursor to pointer on hover
               },
