@@ -32,7 +32,7 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 
 const MainDashboard: React.FC = () => {
-  const cards = Array(7).fill({
+  const cards = Array(11).fill({
     title: "Certificate Sender",
     description: "Send bulk certificates easily",
   }); // Array for 7 cards (4 in the first row, 3 in the second)
@@ -45,7 +45,8 @@ const MainDashboard: React.FC = () => {
           display: 'flex',
           flexWrap: 'wrap', // Allows wrapping to the next line
           gap: 2,
-          justifyContent: 'center', // Align cards to the center
+          justifyContent: 'center',
+            // Align cards to the center
         }}
       >
         {cards.map((card, index) => (
@@ -58,13 +59,15 @@ const MainDashboard: React.FC = () => {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: 3,
-              borderRadius: 12,
+              border:'1px solid #d0d0d0',
+              borderRadius: '12px',
+              
               bgcolor: 'background.paper',
               padding: 3,
               transition: '0.3s', // Smooth transition for hover effect
               '&:hover': {
-                bgcolor: '#e3f2fd', // Light blue background on hover
+                bgcolor: 'background.paper',
+                borderColor: '#a0a0a0', 
                 cursor: 'pointer', // Change cursor to pointer on hover
               },
             }}

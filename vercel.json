@@ -1,10 +1,11 @@
 {
+  
     "build": {
       "env": {
         "NODE_ENV": "production"
       }
     },
-    "output": "static",
+    
     "rewrites": [
       {
         "source": "/(.*)",
