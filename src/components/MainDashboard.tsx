@@ -1,12 +1,21 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import CardItem from './CardItem';
+import { useNavigate } from 'react-router-dom';
 
 const MainDashboard: React.FC = () => {
+  const navigate = useNavigate();
+
   const cards = Array(11).fill({
     title: "Certificate Sender",
     description: "Send bulk certificates easily",
-  }); 
+  });
+
+  const handleCardClick = (index: number) => {
+    if (index === 0) {
+      navigate('/certificate');
+    }
+  };
 
   return (
     <Box sx={{ padding: 4 }}>
@@ -19,10 +28,14 @@ const MainDashboard: React.FC = () => {
           justifyContent: 'center',
         }}
       >
-        {cards.map((card,index) => (
-          <CardItem key={index} title={card.title} description={card.description} />
+        {cards.map((card, index) => (
+          <CardItem
+            key={index}
+            title={card.title}
+            description={card.description}
+            onClick={() => handleCardClick(index)}
+          />
         ))}
-        
       </Box>
     </Box>
   );
