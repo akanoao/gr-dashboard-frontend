@@ -4,11 +4,13 @@ import { Box, Typography } from '@mui/material';
 interface CardItemProps {
   title: string;
   description: string;
+  onClick?: () => void;
 }
 
-const CardItem: React.FC<CardItemProps> = ({ title, description }) => {
+const CardItem: React.FC<CardItemProps> = ({ title, description, onClick  }) => {
   return (
     <Box
+    onClick={onClick}
       sx={{
         width: { xs: '60%', sm: '23%' },
         height: '220px',
