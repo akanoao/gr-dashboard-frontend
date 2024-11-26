@@ -12,7 +12,7 @@ const CardItem: React.FC<CardItemProps> = ({ title, description, onClick  }) => 
     <Box
     onClick={onClick}
       sx={{
-        width: { xs: '60%', sm: '23%' },
+        width: { xs: '80%', sm: '50%', md:'23%' },
         height: '220px',
         display: 'flex',
         flexDirection: 'column',
@@ -37,7 +37,7 @@ const CardItem: React.FC<CardItemProps> = ({ title, description, onClick  }) => 
           height: 0,
           borderLeft: '25px solid transparent',
           borderRight: '25px solid transparent',
-          borderBottom: '40px solid #e0e0e0',
+          borderBottom: {xs: '30px solid #e0e0e0', sm: '40px solid #e0e0e0'},
           marginBottom: 1,
         }}
       ></Box>
@@ -48,15 +48,15 @@ const CardItem: React.FC<CardItemProps> = ({ title, description, onClick  }) => 
           display: 'flex',
           justifyContent: 'center',
           width: '60%',
-          gap: 3,
+          gap: {xs: 2, sm: 3},
           marginBottom: 2,
         }}
       >
         {/* Square */}
         <Box
           sx={{
-            width: '50px',
-            height: '45px',
+            width: {xs: '35px', sm:'50px'},
+            height: {xs: '35px', sm:'45px'},
             backgroundColor: '#e0e0e0',
           }}
         ></Box>
@@ -64,8 +64,8 @@ const CardItem: React.FC<CardItemProps> = ({ title, description, onClick  }) => 
         {/* Circle */}
         <Box
           sx={{
-            width: '50px',
-            height: '45px',
+            width: {xs:'35px' ,sm: '50px'},
+            height: { xs: '35px', sm: '45px' },
             borderRadius: '50%',
             backgroundColor: '#e0e0e0',
           }}
@@ -73,10 +73,10 @@ const CardItem: React.FC<CardItemProps> = ({ title, description, onClick  }) => 
       </Box>
 
       {/* Text Content */}
-      <Typography variant="h6" fontWeight="bold" align="center">
+      <Typography variant="h6" fontWeight="bold" align="center" fontSize={{xs: '1rem', sm:'1.25rem'}}>
         {title}
       </Typography>
-      <Typography variant="body2" color="text.secondary" align="center">
+      <Typography variant="body2" color="text.secondary" align="center" fontSize={{xs:'0.8rem', sm:'1rem'}}>
         {description}
       </Typography>
     </Box>
