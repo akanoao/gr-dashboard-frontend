@@ -21,6 +21,13 @@ const CertificateDashboard = () => {
     const file = event.target.files?.[0];
     if (file) {
       setCsvFile(file);
+
+      // Temporary CSV processing
+      const reader = new FileReader();
+      reader.onload = () => {
+        console.log("CSV File Content:", reader.result); // Process CSV data here
+      };
+      reader.readAsText(file);
     }
   };
 
@@ -33,10 +40,18 @@ const CertificateDashboard = () => {
             <p>Step 1: Create Google Slides Presentation</p>
             <ul className="list-decimal list-inside space-y-1">
               <li>Go to Google Slides and create a new presentation.</li>
-              <li>Adjust the aspect ratio from <b>File &gt; Page Setup</b>.</li>
+              <li>
+                Adjust the aspect ratio from <b>File &gt; Page Setup</b>.
+              </li>
               <li>Set the certificate image as the presentation background.</li>
-              <li>Add a text box where you want the full name to appear, and type <b>Full_Name</b>.</li>
-              <li>Save the presentation and copy the URL (e.g., https://docs.google.com/presentation/d/&lt;presentation_id&gt;/edit).</li>
+              <li>
+                Add a text box where you want the full name to appear, and type{" "}
+                <b>Full_Name</b>.
+              </li>
+              <li>
+                Save the presentation and copy the URL (e.g.,
+                https://docs.google.com/presentation/d/&lt;presentation_id&gt;/edit).
+              </li>
               <li>Ensure the email `geekroom-xyz@gmail.com` has access.</li>
             </ul>
           </div>
@@ -77,9 +92,19 @@ const CertificateDashboard = () => {
               Submit
             </button>
           </div>
+          {/* Display the uploaded CSV file name */}
+          {csvFile && (
+            <div className="mt-4 text-gray-700">
+              <p>
+                <b>Uploaded CSV:</b> {csvFile.name}
+              </p>
+            </div>
+          )}
         </div>
         <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-full max-w-full lg:max-w-[48%]">
-          <h2 className="text-gray-900 font-bold text-lg mb-4">Email Preview</h2>
+          <h2 className="text-gray-900 font-bold text-lg mb-4">
+            Email Preview
+          </h2>
           <div className="space-y-4">
             <div>
               <label
@@ -146,11 +171,17 @@ const CertificateDashboard = () => {
                 style={{ width: "77%" }}
               ></div>
             </div>
-            <p className="text-sm text-gray-600 mt-2 font-medium">15/45 Mails Sent</p>
+            <p className="text-sm text-gray-600 mt-2 font-medium">
+              15/45 Mails Sent
+            </p>
           </div>
           <div className="bg-gray-100 p-4 rounded-lg shadow-inner">
-            <p className="font-semibold text-gray-900">architkohl321@gmail.com</p>
-            <p className="text-gray-700 text-sm mb-2">Subject: {subject || "Your certificate awaits!"}</p>
+            <p className="font-semibold text-gray-900">
+              architkohl321@gmail.com
+            </p>
+            <p className="text-gray-700 text-sm mb-2">
+              Subject: {subject || "Your certificate awaits!"}
+            </p>
             <p className="text-gray-600 text-sm whitespace-pre-wrap">
               {body ||
                 "Hey Archit! \nWe are thrilled to inform you that you have successfully completed the online session on Open Source hosted by Geek Room. Your participation and enthusiasm made the event a great success! \n \nThank you for being a part of the session. \n \nBest Regards, \nGeek Room"}
