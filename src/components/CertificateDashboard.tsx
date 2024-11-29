@@ -3,19 +3,7 @@ import React, { useState } from "react";
 const CertificateDashboard = () => {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [csvFile, setCsvFile] = useState<File | null>(null);
-
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setUploadedImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -102,9 +90,7 @@ const CertificateDashboard = () => {
           )}
         </div>
         <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-full max-w-full lg:max-w-[48%]">
-          <h2 className="text-gray-900 font-bold text-lg mb-4">
-            Email Preview
-          </h2>
+          <h2 className="text-gray-900 font-bold text-lg mb-4">Email Preview</h2>
           <div className="space-y-4">
             <div>
               <label
@@ -144,22 +130,8 @@ const CertificateDashboard = () => {
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 w-full max-w-6xl mt-6">
         <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-full max-w-full lg:max-w-[48%] flex flex-col items-center">
           <h2 className="text-gray-900 font-bold text-lg mb-4">Upload Image</h2>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="p-2 border border-gray-300 rounded-md cursor-pointer mb-4"
-          />
           <div className="mt-4 w-full h-64 bg-gray-200 border border-gray-300 rounded-md flex items-center justify-center overflow-hidden">
-            {uploadedImage ? (
-              <img
-                src={uploadedImage}
-                alt="Uploaded"
-                className="max-w-full max-h-full object-contain"
-              />
-            ) : (
-              <p className="text-gray-500">No image uploaded</p>
-            )}
+            <p className="text-gray-500">No image uploaded</p>
           </div>
         </div>
         <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-full max-w-full lg:max-w-[48%] flex flex-col">
