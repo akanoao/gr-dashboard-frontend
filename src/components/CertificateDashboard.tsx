@@ -9,6 +9,11 @@ const CertificateDashboard = () => {
   const handleCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      if (file.type !== "text/csv" && !file.name.endsWith(".csv")) {
+        alert("Please upload a valid CSV file.");
+        return;
+      }
+
       setCsvFile(file);
 
       const reader = new FileReader();
