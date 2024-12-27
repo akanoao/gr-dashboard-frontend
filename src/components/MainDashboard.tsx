@@ -1,9 +1,16 @@
-import React from 'react';
-import { Box } from '@mui/material';
-import CardItem from './CardItem';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { Box } from "@mui/material";
+import CardItem from "./CardItem";
+import { useNavigate } from "react-router-dom";
 
-const MainDashboard: React.FC = () => {
+interface MainDashboardProps {
+  user: {
+    email: string;
+    // ... other properties
+  };
+}
+
+const MainDashboard: React.FC<MainDashboardProps> = () => {
   const navigate = useNavigate();
 
   const cards = Array(11).fill({
@@ -13,7 +20,7 @@ const MainDashboard: React.FC = () => {
 
   const handleCardClick = (index: number) => {
     if (index === 0) {
-      navigate('/certificate');
+      navigate("/certificate");
     }
   };
 
@@ -22,10 +29,10 @@ const MainDashboard: React.FC = () => {
       {/* Card Container */}
       <Box
         sx={{
-          display: 'flex',
-          flexWrap: 'wrap',
+          display: "flex",
+          flexWrap: "wrap",
           gap: 2,
-          justifyContent: 'center',
+          justifyContent: "center",
         }}
       >
         {cards.map((card, index) => (

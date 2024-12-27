@@ -1,10 +1,27 @@
 import React, { useState, useEffect } from "react";
 
-const CertificateDashboard = () => {
+type AccessType = {
+  [key: string]: string[]; // This means any string key can have an array of strings as its value
+};
+
+import access from "../access.json";
+
+interface CertificateDashboardProps {
+  user: {
+    email: string;
+    // ... other properties of DecodedToken
+  };
+}
+
+const typedAccess = access as AccessType;
+
+
+const CertificateDashboard: React.FC<CertificateDashboardProps> = ({ user }) => {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [allowedAccess, setAllowedAccess] = useState(false);
 
   const handleCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -32,9 +49,24 @@ const CertificateDashboard = () => {
     }, 2000);
   };
 
+  const checkCertificateAccess = () => {
+    const userEmail = user.email;
+    if (!user || !typedAccess[userEmail] || !typedAccess[userEmail].includes("certificate")) {
+      setAllowedAccess(false);
+    }
+    else{
+      setAllowedAccess(true);
+    }
+  };
+
   useEffect(() => {
+    checkCertificateAccess();
     fetchImageFromBackend();
-  }, []);
+  }, [user]);
+
+  if(!allowedAccess){
+    return <div>Please ask an admin for access</div>
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4 overflow-x-hidden">
