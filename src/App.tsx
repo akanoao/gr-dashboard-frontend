@@ -1,6 +1,11 @@
 // App.tsx
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import {
   useGoogleLogin,
@@ -11,7 +16,7 @@ import Navbar from "./components/Navbar";
 import CertificateDashboard from "./components/CertificateDashboard";
 import MainDashboard from "./components/MainDashboard";
 import theme from "./theme/theme";
-import access from "./access.json"
+import access from "./access.json";
 
 interface DecodedToken {
   email: string;
@@ -21,6 +26,7 @@ interface DecodedToken {
 function App() {
   const [user, setUser] = useState<DecodedToken | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [tokenValid, setTokenValid] = useState(false);
 
   const login = useGoogleLogin({
     onSuccess: async (response) => {
@@ -33,27 +39,33 @@ function App() {
         ) {
           throw new Error("User has not granted email scope");
         }
-        const userInfoResponse = await fetch(
-          "https://www.googleapis.com/oauth2/v3/userinfo",
-          {
-            headers: {
-              Authorization: `Bearer ${response.access_token}`,
-            },
+
+        // Check if the token is still valid
+        if (!tokenValid) {
+          const userInfoResponse = await fetch(
+            "https://www.googleapis.com/oauth2/v3/userinfo",
+            {
+              headers: {
+                Authorization: `Bearer ${response.access_token}`,
+              },
+            }
+          );
+
+          if (!userInfoResponse.ok) {
+            throw new Error("Failed to fetch user info");
           }
-        );
 
-        if (!userInfoResponse.ok) {
-          throw new Error("Failed to fetch user info");
-        }
+          const userInfo = await userInfoResponse.json();
+          console.log("User Info:", userInfo);
 
-        const userInfo = await userInfoResponse.json();
-        console.log("User Info:", userInfo);
-        // Check if user is whitelisted
-        if (userInfo.email in access) {
-          setUser(userInfo);
-        } else {
-          alert("This account is not authorized to access the dashboard.");
-          googleLogout();
+          // Check if user is whitelisted
+          if (userInfo.email in access) {
+            setUser(userInfo);
+            setTokenValid(true); // Mark token as valid
+          } else {
+            alert("This account is not authorized to access the dashboard.");
+            googleLogout();
+          }
         }
       } catch (error) {
         console.error("Login/User Info Error:", error);
@@ -65,8 +77,8 @@ function App() {
       console.error("Google Login Failed:", error);
       alert("Login failed. Please try again.");
     },
-    flow: "implicit", // Use implicit flow for access token
-    scope: "https://www.googleapis.com/auth/userinfo.email", // Request email scope
+    flow: "implicit",
+    scope: "https://www.googleapis.com/auth/userinfo.email"
   });
 
   useEffect(() => {
@@ -83,7 +95,7 @@ function App() {
     // Set a timeout to re-initialize login after a short interval
     const timeoutId = setTimeout(() => {
       initializeLogin();
-    }, 1000); // 1 second
+    }, 1000);
 
     // Cleanup function to clear the timeout if the component unmounts
     return () => clearTimeout(timeoutId);
@@ -93,8 +105,13 @@ function App() {
     setIsLoaded(true);
   }, []);
 
+  useEffect(() => {
+    // Reset token validity when user changes
+    setTokenValid(false);
+  }, [user]);
+
   if (!isLoaded) {
-    return <div>Loading...</div>; // Or a loading spinner
+    return <div>Loading...</div>;
   }
 
   return (
