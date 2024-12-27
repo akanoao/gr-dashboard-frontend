@@ -5,7 +5,7 @@ declare module "*.png" {
 }
 
 interface ImportMetaEnv {
-    readonly REACT_APP_GOOGLE_CLIENT_ID: string
+    readonly VITE_GOOGLE_CLIENT_ID: string
     // more env variables...
   }
   
