@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 const CertificateDashboard = () => {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [boundingBoxes, setBoundingBoxes] = useState<{ id: number; x: number; y: number; width: number; height: number }[]>([]);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(null);
+  const [boxIdCounter, setBoxIdCounter] = useState(0);
 
   const handleCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -24,17 +30,117 @@ const CertificateDashboard = () => {
     }
   };
 
-  const fetchImageFromBackend = () => {
-    setTimeout(() => {
-      setUploadedImage(
-        "https://via.placeholder.com/300x200.png?text=Certificate+Image"
-      );
-    }, 2000);
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result;
+        if (result) {
+          const img = new Image();
+          img.onload = () => {
+            setImageDimensions({ width: img.width, height: img.height });
+            setUploadedImage(result as string);
+          };
+          img.src = result as string;
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
+  const handleCanvasMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    if (rect) {
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      setIsDrawing(true);
+      setStartPoint({ x, y });
+    }
+  };
+
+  const handleCanvasMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing || !startPoint || !canvasRef.current) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    const ctx = canvasRef.current.getContext("2d");
+    if (ctx && uploadedImage) {
+      const img = new Image();
+      img.src = uploadedImage;
+      img.onload = () => {
+        ctx.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
+        ctx.drawImage(img, 0, 0, canvasRef.current!.width, canvasRef.current!.height);
+
+        boundingBoxes.forEach((box) => {
+          ctx.strokeStyle = "red";
+          ctx.lineWidth = 2;
+          ctx.strokeRect(box.x, box.y, box.width, box.height);
+        });
+
+        ctx.strokeStyle = "blue";
+        ctx.lineWidth = 1;
+        ctx.strokeRect(startPoint.x, startPoint.y, x - startPoint.x, y - startPoint.y);
+      };
+    }
+  };
+
+  const handleCanvasMouseUp = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!isDrawing || !startPoint || !canvasRef.current) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    const newBox = {
+      id: boxIdCounter,
+      x: Math.min(startPoint.x, x),
+      y: Math.min(startPoint.y, y),
+      width: Math.abs(x - startPoint.x),
+      height: Math.abs(y - startPoint.y),
+    };
+
+    setBoundingBoxes([...boundingBoxes, newBox]);
+    setBoxIdCounter(boxIdCounter + 1);
+    setIsDrawing(false);
+    setStartPoint(null);
+  };
+
+  const handleRemoveBox = (id: number) => {
+    setBoundingBoxes(boundingBoxes.filter((box) => box.id !== id));
+  };
+
+  const handleRemoveImage = () => {
+    setUploadedImage(null);
+    setBoundingBoxes([]);
+    if (canvasRef.current) {
+      const ctx = canvasRef.current.getContext("2d");
+      if (ctx) {
+        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+      }
+    }
+  };
+  
   useEffect(() => {
-    fetchImageFromBackend();
-  }, []);
+    if (canvasRef.current && uploadedImage) {
+      const ctx = canvasRef.current.getContext("2d");
+      if (ctx) {
+        const img = new Image();
+        img.onload = () => {
+          canvasRef.current!.width = img.width;
+          canvasRef.current!.height = img.height;
+          ctx.drawImage(img, 0, 0, img.width, img.height);
+
+          boundingBoxes.forEach((box) => {
+            ctx.strokeStyle = "red";
+            ctx.lineWidth = 2;
+            ctx.strokeRect(box.x, box.y, box.width, box.height);
+          });
+        };
+        img.src = uploadedImage;
+      }
+    }
+  }, [uploadedImage, boundingBoxes]);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4 overflow-x-hidden">
@@ -50,7 +156,7 @@ const CertificateDashboard = () => {
               </li>
               <li>Set the certificate image as the presentation background.</li>
               <li>
-                Add a text box where you want the full name to appear, and type{" "}
+                Add a text box where you want the full name to appear, and type {" "}
                 <b>Full_Name</b>.
               </li>
               <li>
@@ -146,16 +252,42 @@ const CertificateDashboard = () => {
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 w-full max-w-6xl mt-6">
         <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-full max-w-full lg:max-w-[48%] flex flex-col items-center">
           <h2 className="text-gray-900 font-bold text-lg mb-4">Upload Image</h2>
-          <div className="mt-4 w-full h-64 bg-gray-200 border border-gray-300 rounded-md flex items-center justify-center overflow-hidden">
-            {uploadedImage ? (
-              <img
-                src={uploadedImage}
-                alt="Uploaded Certificate"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <p className="text-gray-500">No image uploaded</p>
-            )}
+          <div className="mt-4 w-full flex flex-col items-center">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="mb-4"
+            />
+            <div className="relative w-full max-w-md">
+              <canvas
+                ref={canvasRef}
+                onMouseDown={handleCanvasMouseDown}
+                onMouseMove={handleCanvasMouseMove}
+                onMouseUp={handleCanvasMouseUp}
+                className="border border-gray-300 rounded-md"
+                style={{ width: "100%", height: "auto" }}
+              ></canvas>
+            </div>
+            <div className="mt-4 w-full flex flex-wrap gap-4">
+              {boundingBoxes.map((box) => (
+                <button
+                  key={box.id}
+                  onClick={() => handleRemoveBox(box.id)}
+                  className="bg-red-500 text-white py-1 px-3 rounded-md shadow hover:bg-red-600"
+                >
+                  Remove Box {box.id}
+                </button>
+              ))}
+              {uploadedImage && (
+                <button
+                  onClick={handleRemoveImage}
+                  className="bg-red-500 text-white py-1 px-3 rounded-md shadow hover:bg-red-600"
+                >
+                  Remove Image
+                </button>
+              )}
+            </div>
           </div>
         </div>
         <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-full max-w-full lg:max-w-[48%] flex flex-col">
