@@ -179,23 +179,7 @@ const CertificateDashboard = () => {
               <li>Ensure the email `geekroom-xyz@gmail.com` has access.</li>
             </ul>
           </div>
-          <div className="mt-6">
-            <label
-              htmlFor="google-slides-link"
-              className="text-gray-700 font-semibold mb-2 block"
-            >
-              Google Slides Link
-            </label>
-            <div className="flex items-center border border-gray-300 rounded-md p-2 mb-4">
-              <input
-                id="google-slides-link"
-                type="text"
-                placeholder="Paste Google Slides Link"
-                className="flex-1 border-none focus:outline-none"
-              />
-            </div>
-          </div>
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-4 pt-8">
             <button
               onClick={() => document.getElementById("csv-upload")?.click()}
               className="bg-purple-500 text-white py-2 px-4 rounded-md shadow hover:bg-purple-600"
