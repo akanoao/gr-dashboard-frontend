@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider, CssBaseline } from "@mui/material"; // Material-UI imports
 import Navbar from "./components/Navbar";
 
-import CertificateDashboard from "./components/CertificateDashboard";
+import CertificateDashboard from "./pages/CertificateDashboard";
 import MainDashboard from "./components/MainDashboard";
 import theme from "./theme/theme"; // Import the custom theme
 

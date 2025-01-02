@@ -1,20 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
+import CertificateUploader from "../components/CertificateUploader";
 
 const CertificateDashboard = () => {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [csvFile, setCsvFile] = useState<File | null>(null);
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [boundingBox, setBoundingBox] = useState<{
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  } | null>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const startRef = useRef<{ x: number; y: number } | null>(null);
-
   const handleCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -22,7 +12,6 @@ const CertificateDashboard = () => {
         alert("Please upload a valid CSV file.");
         return;
       }
-
       setCsvFile(file);
 
       const reader = new FileReader();
@@ -32,128 +21,6 @@ const CertificateDashboard = () => {
       reader.readAsText(file);
     }
   };
-
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setUploadedImage(reader.result as string);
-        setBoundingBox(null);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!uploadedImage || !canvasRef.current) return;
-
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    if (!startRef.current) {
-      // Start drawing
-      startRef.current = { x, y };
-      setIsDrawing(true);
-    } else {
-      // Finish drawing
-      const startX = startRef.current.x;
-      const startY = startRef.current.y;
-      setBoundingBox({
-        x: Math.min(startX, x),
-        y: Math.min(startY, y),
-        width: Math.abs(x - startX),
-        height: Math.abs(y - startY),
-      });
-      setIsDrawing(false);
-      startRef.current = null;
-    }
-  };
-
-  const handleCanvasMouseMove = (
-    event: React.MouseEvent<HTMLCanvasElement>
-  ) => {
-    if (!isDrawing || !canvasRef.current || !startRef.current) return;
-
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    const startX = startRef.current.x;
-    const startY = startRef.current.y;
-
-    setBoundingBox({
-      x: Math.min(startX, x),
-      y: Math.min(startY, y),
-      width: Math.abs(x - startX),
-      height: Math.abs(y - startY),
-    });
-  };
-
-  const drawBoundingBox = () => {
-    if (!canvasRef.current || !uploadedImage) return;
-
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext("2d");
-    if (ctx) {
-      const image = new Image();
-      image.onload = () => {
-        // Fit image within canvas while preserving aspect ratio
-        const containerWidth = canvas.parentElement?.offsetWidth || 0;
-        const containerHeight = canvas.parentElement?.offsetHeight || 0;
-
-        const imgAspectRatio = image.width / image.height;
-        const canvasAspectRatio = containerWidth / containerHeight;
-
-        let drawWidth, drawHeight;
-        if (imgAspectRatio > canvasAspectRatio) {
-          drawWidth = containerWidth;
-          drawHeight = containerWidth / imgAspectRatio;
-        } else {
-          drawHeight = containerHeight;
-          drawWidth = containerHeight * imgAspectRatio;
-        }
-
-        canvas.width = drawWidth;
-        canvas.height = drawHeight;
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(image, 0, 0, drawWidth, drawHeight);
-
-        // Draw bounding box
-        if (boundingBox) {
-          ctx.strokeStyle = "red";
-          ctx.lineWidth = 2;
-          ctx.strokeRect(
-            boundingBox.x,
-            boundingBox.y,
-            boundingBox.width,
-            boundingBox.height
-          );
-        }
-      };
-      image.src = uploadedImage;
-    }
-  };
-
-  const handleRemoveImage = () => {
-    setUploadedImage(null);
-    setBoundingBox(null);
-  };
-
-  const handleRemoveBoundingBox = () => {
-    setBoundingBox(null);
-    if (uploadedImage && canvasRef.current) {
-      drawBoundingBox();
-    }
-  };
-
-  React.useEffect(() => {
-    drawBoundingBox();
-  }, [uploadedImage, boundingBox]);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4 overflow-x-hidden">
@@ -208,6 +75,8 @@ const CertificateDashboard = () => {
             </div>
           )}
         </div>
+
+        {/* email preview */}
         <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-full max-w-full lg:max-w-[48%]">
           <h2 className="text-gray-900 font-bold text-lg mb-4">
             Email Preview
@@ -250,50 +119,12 @@ const CertificateDashboard = () => {
           </div>
         </div>
       </div>
+
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 w-full max-w-6xl mt-6">
-        <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-full max-w-full lg:max-w-[48%] flex flex-col items-center">
-          <h2 className="text-gray-900 font-bold text-lg mb-4">
-            Certificate Layout
-          </h2>
-          <div className="relative w-full h-96 flex items-center justify-center border border-gray-300 rounded-md">
-            {uploadedImage ? (
-              <>
-                <canvas
-                  ref={canvasRef}
-                  onClick={handleCanvasClick}
-                  onMouseMove={handleCanvasMouseMove}
-                  className="cursor-crosshair"
-                />
-                <button
-                  onClick={handleRemoveImage}
-                  className="absolute bottom-2 right-5 bg-red-500 text-white py-2 px-4 rounded-md shadow hover:bg-red-600"
-                >
-                  Remove Image
-                </button>
-                <button
-                  onClick={handleRemoveBoundingBox}
-                  className="absolute bottom-2 left-5 bg-orange-500 text-white py-2 px-4 rounded-md shadow hover:bg-orange-600"
-                >
-                  Remove Box
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => document.getElementById("image-upload")?.click()}
-                className="bg-purple-500 text-white py-2 px-4 rounded-md shadow hover:bg-purple-600"
-              >
-                Upload Image
-              </button>
-            )}
-            <input
-              id="image-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              className="hidden"
-            />
-          </div>
-        </div>
+        
+      {/* certificate image */}
+          <CertificateUploader />
+        {/* mail draft for review */}
         <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-full max-w-full lg:max-w-[48%] flex flex-col">
           <div className="mb-4">
             <p className="text-gray-700 text-sm mb-2">Progress:</p>
