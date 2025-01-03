@@ -65,6 +65,10 @@ const CertificateUploader: React.FC = () => {
     }, 1000);
   };
 
+  const handleCancelPreview = () => {
+    setPreviewImage(null);
+  };
+
   const calculateBoxStyle = () => {
     if (!boundingBox || !imageRef.current) return {};
 
@@ -83,7 +87,7 @@ const CertificateUploader: React.FC = () => {
   };
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-full flex flex-col items-center">
+    <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-full flex flex-col items-center relative">
       <h2 className="text-gray-900 font-bold text-lg mb-4">Upload Image</h2>
 
       <input
@@ -93,8 +97,8 @@ const CertificateUploader: React.FC = () => {
         onChange={handleImageUpload}
       />
 
-      {uploadedImage && !previewImage && (
-        <div className="relative">
+      {uploadedImage && (
+        <div className={`relative ${previewImage ? "opacity-50" : ""}`}>
           <img
             ref={imageRef}
             src={uploadedImage}
@@ -110,7 +114,7 @@ const CertificateUploader: React.FC = () => {
               style={calculateBoxStyle()}
             ></div>
           )}
-          {boundingBox && !isDrawing && (
+          {boundingBox && !isDrawing && !previewImage && (
             <button
               onClick={handleBoundingBoxRemove}
               className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
@@ -130,7 +134,7 @@ const CertificateUploader: React.FC = () => {
         </button>
       )}
 
-      {uploadedImage && (
+      {uploadedImage && !previewImage && (
         <button
           onClick={handleImageRemove}
           className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
@@ -150,7 +154,7 @@ const CertificateUploader: React.FC = () => {
             />
             <div className="absolute inset-x-0 bottom-0 flex justify-between p-4">
               <button
-                onClick={handleImageRemove}
+                onClick={handleCancelPreview}
                 className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
               >
                 Cancel
