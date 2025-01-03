@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import CertificateUploader from "../components/CertificateUploader";
+import React, { useState, useRef } from "react";
+// import CertificateUploader from "../components/CertificateUploader";
 
 const CertificateDashboard = () => {
   const [subject, setSubject] = useState("");
@@ -20,6 +20,106 @@ const CertificateDashboard = () => {
       };
       reader.readAsText(file);
     }
+  };
+
+  const [previewContent, setPreviewContent] = useState<{
+    subject: string;
+    body: string;
+    image: string | null;
+  } | null>(null);
+
+  // --
+
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [boundingBox, setBoundingBox] = useState<{
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
+  } | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  const imageRef = useRef<HTMLImageElement | null>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = () => setUploadedImage(reader.result as string);
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  };
+
+  const handleImageRemove = () => {
+    setUploadedImage(null);
+    setBoundingBox(null);
+    setPreviewImage(null);
+  };
+
+  const handleBoundingBoxRemove = () => {
+    setBoundingBox(null);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLImageElement>) => {
+    if (!uploadedImage || !imageRef.current || isDrawing) return;
+
+    const rect = imageRef.current.getBoundingClientRect();
+    const startX = (e.clientX - rect.left) / rect.width;
+    const startY = (e.clientY - rect.top) / rect.height;
+
+    setBoundingBox({ startX, startY, endX: startX, endY: startY });
+    setIsDrawing(true);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLImageElement>) => {
+    if (!isDrawing || !boundingBox || !imageRef.current) return;
+
+    const rect = imageRef.current.getBoundingClientRect();
+    const endX = (e.clientX - rect.left) / rect.width;
+    const endY = (e.clientY - rect.top) / rect.height;
+
+    setBoundingBox((prev) => (prev ? { ...prev, endX, endY } : null));
+  };
+
+  const handleMouseUp = () => {
+    if (isDrawing) {
+      setIsDrawing(false);
+    }
+  };
+
+  const handlePreviewAndSubmit = () => {
+    // Simulate a backend API call to get the processed image
+    setTimeout(() => {
+      const processedImage =
+        "https://via.placeholder.com/800x400?text=Processed+Image"; // Replace with real backend API response
+      setPreviewContent({
+        subject,
+        body,
+        image: processedImage,
+      });
+    }, 1000);
+  };
+
+  const handleCancelPreview = () => {
+    setPreviewContent(null);
+  };
+
+  const calculateBoxStyle = () => {
+    if (!boundingBox || !imageRef.current) return {};
+
+    const rect = imageRef.current.getBoundingClientRect();
+    const startX = Math.min(boundingBox.startX, boundingBox.endX) * rect.width;
+    const startY = Math.min(boundingBox.startY, boundingBox.endY) * rect.height;
+    const width = Math.abs(boundingBox.endX - boundingBox.startX) * rect.width;
+    const height =
+      Math.abs(boundingBox.endY - boundingBox.startY) * rect.height;
+
+    return {
+      left: `${startX}px`,
+      top: `${startY}px`,
+      width: `${width}px`,
+      height: `${height}px`,
+    };
   };
 
   return (
@@ -60,12 +160,6 @@ const CertificateDashboard = () => {
               onChange={handleCSVUpload}
               className="hidden"
             />
-            <button className="bg-purple-500 text-white py-2 px-4 rounded-md shadow hover:bg-purple-600">
-              View Sample Row
-            </button>
-            <button className="bg-purple-500 text-white py-2 px-4 rounded-md shadow hover:bg-purple-600">
-              Submit
-            </button>
           </div>
           {csvFile && (
             <div className="mt-4 text-gray-700">
@@ -76,11 +170,9 @@ const CertificateDashboard = () => {
           )}
         </div>
 
-        {/* email preview */}
+        {/* email content */}
         <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-full max-w-full lg:max-w-[48%]">
-          <h2 className="text-gray-900 font-bold text-lg mb-4">
-            Email Preview
-          </h2>
+          <h2 className="text-gray-900 font-bold text-lg mb-4">Email</h2>
           <div className="space-y-4">
             <div>
               <label
@@ -113,44 +205,121 @@ const CertificateDashboard = () => {
                 className="w-full border border-gray-300 rounded-md p-2 focus:outline-none h-40 resize-none"
               ></textarea>
             </div>
-            <button className="bg-blue-500 text-white py-2 px-4 rounded-md shadow hover:bg-blue-600">
-              Send Email
-            </button>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 w-full max-w-6xl mt-6">
-        
-      {/* certificate image */}
-          <CertificateUploader />
-        {/* mail draft for review */}
-        <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-full max-w-full lg:max-w-[48%] flex flex-col">
-          <div className="mb-4">
-            <p className="text-gray-700 text-sm mb-2">Progress:</p>
-            <div className="relative w-full h-4 bg-gray-300 rounded-full overflow-hidden shadow-inner">
-              <div
-                className="absolute h-full bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 rounded-full transition-all duration-500"
-                style={{ width: "77%" }}
-              ></div>
+      <div className="flex justify-center gap-4 lg:gap-6 w-full max-w-6xl mt-6">
+        {/* certificate image */}
+        <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-1/2 flex flex-col items-center relative">
+          <h2 className="text-gray-900 font-bold text-lg mb-4">Upload Image</h2>
+
+          <input
+            type="file"
+            accept="image/*"
+            className="text-sm text-gray-600 mb-4"
+            onChange={handleImageUpload}
+          />
+
+          {uploadedImage && (
+            <div className={`relative ${previewImage ? "opacity-50" : ""}`}>
+              <img
+                ref={imageRef}
+                src={uploadedImage}
+                alt="Uploaded"
+                className="max-w-full h-auto"
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+              />
+              {boundingBox && (
+                <div
+                  className="absolute border-2 border-blue-500 bg-transparent"
+                  style={calculateBoxStyle()}
+                ></div>
+              )}
+              {boundingBox && !isDrawing && !previewImage && (
+                <button
+                  onClick={handleBoundingBoxRemove}
+                  className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition"
+                >
+                  Remove Box
+                </button>
+              )}
             </div>
-            <p className="text-sm text-gray-600 mt-2 font-medium">
-              15/45 Mails Sent
-            </p>
-          </div>
-          <div className="bg-gray-100 p-4 rounded-lg shadow-inner">
-            <p className="font-semibold text-gray-900">
-              architkohl321@gmail.com
-            </p>
-            <p className="text-gray-700 text-sm mb-2">
-              Subject: {subject || "Your certificate awaits!"}
-            </p>
-            <p className="text-gray-600 text-sm whitespace-pre-wrap">
-              {body ||
-                "Hey Archit! \nWe are thrilled to inform you that you have successfully completed the online session on Open Source hosted by Geek Room. Your participation and enthusiasm made the event a great success! \n \nThank you for being a part of the session. \n \nBest Regards, \nGeek Room"}
-            </p>
+          )}
+
+          {uploadedImage && !previewImage && (
+            <button
+              onClick={handleImageRemove}
+              className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+            >
+              Remove Image
+            </button>
+          )}
+        </div>
+      </div>
+
+      <button
+        onClick={handlePreviewAndSubmit}
+        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+      >
+        Preview & Submit
+      </button>
+      {previewContent && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-10">
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden relative p-6 w-3/4 max-h-[90vh] flex flex-col">
+            <div className="flex-1 flex flex-row">
+              {/* Left Half: Email Content */}
+              <div className="w-1/2 p-4 border-r border-gray-300">
+                <div className="text-left">
+                  <h2 className="text-lg font-bold text-gray-900 mb-2">
+                    <b>Email Draft</b>
+                  </h2>
+                  <p className="text-gray-700 mb-2">
+                    <b>{previewContent.subject}</b>
+                  </p>
+                  <p className="text-gray-700">{previewContent.body}</p>
+                </div>
+              </div>
+
+              {/* Right Half: Image Preview */}
+              <div className="w-1/2 p-4 flex justify-center items-center">
+                <img
+                  src={previewContent.image || ""}
+                  alt="Preview"
+                  className="max-w-full max-h-full object-contain rounded"
+                />
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-between mt-4 p-4 border-t border-gray-300">
+              <button
+                onClick={handleCancelPreview}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => alert("Preview Submitted Successfully!")}
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
+              >
+                Submit
+              </button>
+            </div>
           </div>
         </div>
+      )}
+
+      <p className="text-gray-700 text-lg mt-20 mb-4">
+        Progress: <b>15/45 Mails Sent</b>
+      </p>
+      <div className="relative w-1/2 h-4 mb-20 bg-gray-300 rounded-full overflow-hidden shadow-inner">
+        <div
+          className="absolute h-full bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 rounded-full transition-all duration-500"
+          style={{ width: "77%" }}
+        ></div>
       </div>
     </div>
   );
