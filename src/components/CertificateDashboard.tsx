@@ -28,8 +28,6 @@ const CertificateDashboard = () => {
     image: string | null;
   } | null>(null);
 
-  // --
-
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [boundingBox, setBoundingBox] = useState<{
     startX: number;
@@ -93,7 +91,6 @@ const CertificateDashboard = () => {
       const processedImage =
         "https://via.placeholder.com/800x400?text=Processed+Image"; // Replace with real backend API response
   
-      // Sanitize subject and body
       const sanitizedSubject = DOMPurify.sanitize(subject);
       const sanitizedBody = DOMPurify.sanitize(body, {
         ALLOWED_TAGS: ["b", "i", "u", "span", "div", "p"],
@@ -279,7 +276,7 @@ const CertificateDashboard = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex lg:flex-row justify-center items-center z-10">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden relative p-6 w-3/4 max-h-[80vh] flex flex-col">
             <div className="flex-1 flex flex-row">
-              {/* Left Half: Email Content */}
+
               <div className="w-1/2 p-4 border-r border-gray-300 overflow-y-auto max-h-[60vh]">
                 <div className="text-left">
                   <h2 className="text-lg font-bold text-gray-900 mb-2">
@@ -300,7 +297,6 @@ const CertificateDashboard = () => {
                 </div>
               </div>
 
-              {/* Right Half: Image Preview */}
               <div className="w-1/2 p-4 flex justify-center items-center">
                 <img
                   src={previewContent.image || ""}
