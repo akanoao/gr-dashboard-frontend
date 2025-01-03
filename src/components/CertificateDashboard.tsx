@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-// import CertificateUploader from "../components/CertificateUploader";
+import DOMPurify from "dompurify";
 
 const CertificateDashboard = () => {
   const [subject, setSubject] = useState("");
@@ -267,19 +267,27 @@ const CertificateDashboard = () => {
         Preview & Submit
       </button>
       {previewContent && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-10">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden relative p-6 w-3/4 max-h-[90vh] flex flex-col">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex lg:flex-row justify-center items-center z-10">
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden relative p-6 w-3/4 max-h-[80vh] flex flex-col">
             <div className="flex-1 flex flex-row">
               {/* Left Half: Email Content */}
-              <div className="w-1/2 p-4 border-r border-gray-300">
+              <div className="w-1/2 p-4 border-r border-gray-300 overflow-y-auto max-h-[60vh]">
                 <div className="text-left">
                   <h2 className="text-lg font-bold text-gray-900 mb-2">
                     <b>Email Draft</b>
                   </h2>
-                  <p className="text-gray-700 mb-2">
-                    <b>{previewContent.subject}</b>
-                  </p>
-                  <p className="text-gray-700">{previewContent.body}</p>
+                  <p
+                    className="text-gray-700 mb-2"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(previewContent.subject),
+                    }}
+                  ></p>
+                  <p
+                    className="text-gray-700"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(previewContent.body),
+                    }}
+                  ></p>
                 </div>
               </div>
 
@@ -293,7 +301,6 @@ const CertificateDashboard = () => {
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex justify-between mt-4 p-4 border-t border-gray-300">
               <button
                 onClick={handleCancelPreview}
@@ -313,12 +320,12 @@ const CertificateDashboard = () => {
       )}
 
       <p className="text-gray-700 text-lg mt-20 mb-4">
-        Progress: <b>15/45 Mails Sent</b>
+        Progress: <b>30/45 Mails Sent</b>
       </p>
       <div className="relative w-1/2 h-4 mb-20 bg-gray-300 rounded-full overflow-hidden shadow-inner">
         <div
           className="absolute h-full bg-gradient-to-r from-purple-500 via-indigo-500 to-blue-500 rounded-full transition-all duration-500"
-          style={{ width: "77%" }}
+          style={{ width: "67%" }}
         ></div>
       </div>
     </div>
