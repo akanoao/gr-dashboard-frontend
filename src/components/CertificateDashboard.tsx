@@ -92,13 +92,22 @@ const CertificateDashboard = () => {
     setTimeout(() => {
       const processedImage =
         "https://via.placeholder.com/800x400?text=Processed+Image"; // Replace with real backend API response
+  
+      // Sanitize subject and body
+      const sanitizedSubject = DOMPurify.sanitize(subject);
+      const sanitizedBody = DOMPurify.sanitize(body, {
+        ALLOWED_TAGS: ["b", "i", "u", "span", "div", "p"],
+        ALLOWED_ATTR: ["style"],
+      });
+  
       setPreviewContent({
-        subject,
-        body,
+        subject: sanitizedSubject,
+        body: sanitizedBody,
         image: processedImage,
       });
     }, 1000);
   };
+  
 
   const handleCancelPreview = () => {
     setPreviewContent(null);
