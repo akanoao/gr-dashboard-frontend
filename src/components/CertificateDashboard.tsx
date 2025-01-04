@@ -90,13 +90,13 @@ const CertificateDashboard = () => {
     setTimeout(() => {
       const processedImage =
         "https://via.placeholder.com/800x400?text=Processed+Image"; // Replace with real backend API response
-  
+
       const sanitizedSubject = DOMPurify.sanitize(subject);
       const sanitizedBody = DOMPurify.sanitize(body, {
         ALLOWED_TAGS: ["b", "i", "u", "span", "div", "p"],
         ALLOWED_ATTR: ["style"],
       });
-  
+
       setPreviewContent({
         subject: sanitizedSubject,
         body: sanitizedBody,
@@ -104,7 +104,6 @@ const CertificateDashboard = () => {
       });
     }, 1000);
   };
-  
 
   const handleCancelPreview = () => {
     setPreviewContent(null);
@@ -217,13 +216,15 @@ const CertificateDashboard = () => {
 
       <div className="flex justify-center gap-4 lg:gap-6 w-full max-w-6xl mt-6">
         {/* certificate image */}
-        <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-1/2 flex flex-col items-center relative">
-          <h2 className="text-gray-900 font-bold text-lg mb-4">Upload Image</h2>
+        <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-full max-w-sm md:w-1/2 flex flex-col items-center relative">
+          <h2 className="text-gray-900 font-bold text-lg mb-4 text-center">
+            Upload Image
+          </h2>
 
           <input
             type="file"
             accept="image/*"
-            className="text-sm text-gray-600 mb-4"
+            className="text-sm text-gray-600 mb-4 w-full max-w-xs"
             onChange={handleImageUpload}
           />
 
@@ -276,7 +277,6 @@ const CertificateDashboard = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex lg:flex-row justify-center items-center z-10">
           <div className="bg-white rounded-lg shadow-lg overflow-hidden relative p-6 w-3/4 max-h-[80vh] flex flex-col">
             <div className="flex-1 flex flex-row">
-
               <div className="w-1/2 p-4 border-r border-gray-300 overflow-y-auto max-h-[60vh]">
                 <div className="text-left">
                   <h2 className="text-lg font-bold text-gray-900 mb-2">
