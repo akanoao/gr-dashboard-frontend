@@ -254,7 +254,7 @@ const CertificateDashboard = () => {
               </label>
               <select
                 id="font-select"
-                defaultValue="Arial"
+                value={font}
                 className="border-gray-300 border rounded-md p-2 text-gray-800"
                 onChange={handleFontChange}
               >
@@ -274,7 +274,7 @@ const CertificateDashboard = () => {
               </label>
               <select
                 id="color-select"
-                defaultValue="black"
+                value={color}
                 className="border-gray-300 border rounded-md p-2 text-gray-800"
                 onChange={handleColorChange}
               >
@@ -294,7 +294,7 @@ const CertificateDashboard = () => {
               </label>
               <select
                 id="size-select"
-                defaultValue="12px"
+                value={size}
                 className="border-gray-300 border rounded-md p-2 text-gray-800"
                 onChange={handleSizeChange}
               >
