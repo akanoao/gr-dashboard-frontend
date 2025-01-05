@@ -5,6 +5,9 @@ const CertificateDashboard = () => {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [font, setFont] = React.useState<string>("Arial");
+  const [color, setColor] = React.useState<string>("black");
+  const [size, setSize] = React.useState<string>("16px");
   const handleCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -20,6 +23,18 @@ const CertificateDashboard = () => {
       };
       reader.readAsText(file);
     }
+  };
+
+  const handleFontChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setFont(event.target.value);
+  };
+
+  const handleColorChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setColor(event.target.value);
+  };
+
+  const handleSizeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSize(event.target.value);
   };
 
   const [previewContent, setPreviewContent] = useState<{
@@ -227,6 +242,69 @@ const CertificateDashboard = () => {
             className="text-sm text-gray-600 mb-4 w-full max-w-xs"
             onChange={handleImageUpload}
           />
+
+          {/* Dropdowns for font, color, and size */}
+          <div className="w-full flex flex-col gap-4 mb-4">
+            <div className="flex items-center justify-between">
+              <label
+                htmlFor="font-select"
+                className="text-gray-700 font-medium"
+              >
+                Font:
+              </label>
+              <select
+                id="font-select"
+                defaultValue="Arial"
+                className="border-gray-300 border rounded-md p-2 text-gray-800"
+                onChange={handleFontChange}
+              >
+                <option value="Arial">Arial</option>
+                <option value="Times New Roman">Times New Roman</option>
+                <option value="Calibri">Calibri</option>
+                <option value="Comic Sans">Comic Sans</option>
+              </select>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label
+                htmlFor="color-select"
+                className="text-gray-700 font-medium"
+              >
+                Color:
+              </label>
+              <select
+                id="color-select"
+                defaultValue="black"
+                className="border-gray-300 border rounded-md p-2 text-gray-800"
+                onChange={handleColorChange}
+              >
+                <option value="black">Black</option>
+                <option value="red">Red</option>
+                <option value="blue">Blue</option>
+                <option value="green">Green</option>
+              </select>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label
+                htmlFor="size-select"
+                className="text-gray-700 font-medium"
+              >
+                Size:
+              </label>
+              <select
+                id="size-select"
+                defaultValue="12px"
+                className="border-gray-300 border rounded-md p-2 text-gray-800"
+                onChange={handleSizeChange}
+              >
+                <option value="12px">12px</option>
+                <option value="16px">16px</option>
+                <option value="20px">20px</option>
+                <option value="24px">24px</option>
+              </select>
+            </div>
+          </div>
 
           {uploadedImage && (
             <div className={`relative ${previewImage ? "opacity-50" : ""}`}>
