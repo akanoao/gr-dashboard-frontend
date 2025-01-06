@@ -108,8 +108,82 @@ const CertificateDashboard = () => {
 
       const sanitizedSubject = DOMPurify.sanitize(subject);
       const sanitizedBody = DOMPurify.sanitize(body, {
-        ALLOWED_TAGS: ["b", "i", "u", "span", "div", "p"],
-        ALLOWED_ATTR: ["style"],
+        WHOLE_DOCUMENT: true,
+        ALLOWED_TAGS: [
+          "html",
+          "head",
+          "body",
+          "style",
+          "b",
+          "i",
+          "u",
+          "a",
+          "span",
+          "div",
+          "p",
+          "h1",
+          "h2",
+          "h3",
+          "h4",
+          "h5",
+          "h6",
+          "table",
+          "thead",
+          "tbody",
+          "tr",
+          "th",
+          "td",
+          "ul",
+          "ol",
+          "li",
+          "img",
+          "button",
+          "input",
+          "textarea",
+          "label",
+          "form",
+          "select",
+          "option",
+          "iframe",
+          "blockquote",
+          "code",
+          "pre",
+          "hr",
+          "br",
+          "small",
+          "strong",
+          "em",
+          "svg",
+          "path",
+        ],
+
+        ALLOWED_ATTR: [
+          "style",
+          "class",
+          "id",
+          "href",
+          "target",
+          "rel",
+          "src",
+          "alt",
+          "title",
+          "width",
+          "height",
+          "type",
+          "value",
+          "placeholder",
+          "name",
+          "action",
+          "method",
+          "rows",
+          "cols",
+          "for",
+          "data-*",
+          "aria-*",
+          "role",
+          "viewBox",
+          "d",
+        ],
       });
 
       setPreviewContent({
@@ -243,7 +317,6 @@ const CertificateDashboard = () => {
             onChange={handleImageUpload}
           />
 
-          {/* Dropdowns for font, color, and size */}
           <div className="w-full flex flex-col gap-4 mb-4">
             <div className="flex items-center justify-between">
               <label
@@ -353,9 +426,9 @@ const CertificateDashboard = () => {
       </button>
       {previewContent && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex lg:flex-row justify-center items-center z-10">
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden relative p-6 w-3/4 max-h-[80vh] flex flex-col">
-            <div className="flex-1 flex flex-row">
-              <div className="w-1/2 p-4 border-r border-gray-300 overflow-y-auto max-h-[60vh]">
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden relative p-6 w-11/12 lg:w-3/4 max-h-[90vh] flex flex-col">
+            <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+              <div className="w-full lg:w-1/2 p-4 border-r border-gray-300 overflow-y-auto max-h-[65vh]">
                 <div className="text-left">
                   <h2 className="text-lg font-bold text-gray-900 mb-2">
                     <b>Email Draft</b>
@@ -363,23 +436,22 @@ const CertificateDashboard = () => {
                   <p
                     className="text-gray-700 mb-2"
                     dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(previewContent.subject),
+                      __html: previewContent.subject,
                     }}
                   ></p>
-                  <p
-                    className="text-gray-700"
-                    dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(previewContent.body),
-                    }}
-                  ></p>
+                  <iframe
+                    srcDoc={previewContent.body}
+                    className="w-full h-[50vh] border-0"
+                    style={{ overflow: "auto" }}
+                  ></iframe>
                 </div>
               </div>
 
-              <div className="w-1/2 p-4 flex justify-center items-center">
+              <div className="w-full lg:w-1/2 p-4 flex justify-center items-center">
                 <img
                   src={previewContent.image || ""}
                   alt="Preview"
-                  className="max-w-full max-h-full object-contain rounded"
+                  className="max-w-full max-h-[60vh] object-contain rounded"
                 />
               </div>
             </div>
