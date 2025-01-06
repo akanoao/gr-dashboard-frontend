@@ -108,8 +108,82 @@ const CertificateDashboard = () => {
 
       const sanitizedSubject = DOMPurify.sanitize(subject);
       const sanitizedBody = DOMPurify.sanitize(body, {
-        ALLOWED_TAGS: ["b", "i", "u", "span", "div", "p"],
-        ALLOWED_ATTR: ["style"],
+        WHOLE_DOCUMENT: true,
+        ALLOWED_TAGS: [
+          "html",
+          "head",
+          "body",
+          "style",
+          "b",
+          "i",
+          "u",
+          "a",
+          "span",
+          "div",
+          "p",
+          "h1",
+          "h2",
+          "h3",
+          "h4",
+          "h5",
+          "h6",
+          "table",
+          "thead",
+          "tbody",
+          "tr",
+          "th",
+          "td",
+          "ul",
+          "ol",
+          "li",
+          "img",
+          "button",
+          "input",
+          "textarea",
+          "label",
+          "form",
+          "select",
+          "option",
+          "iframe",
+          "blockquote",
+          "code",
+          "pre",
+          "hr",
+          "br",
+          "small",
+          "strong",
+          "em",
+          "svg",
+          "path",
+        ],
+
+        ALLOWED_ATTR: [
+          "style",
+          "class",
+          "id",
+          "href",
+          "target",
+          "rel",
+          "src",
+          "alt",
+          "title",
+          "width",
+          "height",
+          "type",
+          "value",
+          "placeholder",
+          "name",
+          "action",
+          "method",
+          "rows",
+          "cols",
+          "for",
+          "data-*",
+          "aria-*",
+          "role",
+          "viewBox",
+          "d",
+        ],
       });
 
       setPreviewContent({
@@ -243,7 +317,6 @@ const CertificateDashboard = () => {
             onChange={handleImageUpload}
           />
 
-          {/* Dropdowns for font, color, and size */}
           <div className="w-full flex flex-col gap-4 mb-4">
             <div className="flex items-center justify-between">
               <label
@@ -363,15 +436,13 @@ const CertificateDashboard = () => {
                   <p
                     className="text-gray-700 mb-2"
                     dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(previewContent.subject),
+                      __html: previewContent.subject,
                     }}
                   ></p>
-                  <p
-                    className="text-gray-700"
-                    dangerouslySetInnerHTML={{
-                      __html: DOMPurify.sanitize(previewContent.body),
-                    }}
-                  ></p>
+                  <iframe
+                    srcDoc={previewContent.body}
+                    className="w-full h-full border-0"
+                  ></iframe>
                 </div>
               </div>
 
