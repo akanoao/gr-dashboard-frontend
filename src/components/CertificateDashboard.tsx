@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import DOMPurify from "dompurify";
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 
 const CertificateDashboard = () => {
   const [subject, setSubject] = useState("");
@@ -122,8 +123,8 @@ const CertificateDashboard = () => {
       formData.append("size", size); // size
       formData.append("color", color); // color
       formData.append("thickness", thickness); // thickness
-      
-      const response = await fetch("http://localhost:5000/certificate-preview", {
+
+      const response = await fetch(`${API_URL}/certificate-preview`, {
         method: "POST",
         body: formData,
       });
@@ -246,7 +247,7 @@ const CertificateDashboard = () => {
     formData.append("subject", subject);
     formData.append("body", body);
     try {
-      const response = await fetch("http://localhost:5000/certificate-sender", {
+      const response = await fetch(`${API_URL}/certificate-sender`, {
         method: "POST",
         body: formData,
       });
