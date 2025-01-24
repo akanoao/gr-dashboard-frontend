@@ -5,9 +5,10 @@ const CertificateDashboard = () => {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
   const [csvFile, setCsvFile] = useState<File | null>(null);
-  const [font, setFont] = React.useState<string>("Arial");
-  const [color, setColor] = React.useState<string>("black");
-  const [size, setSize] = React.useState<string>("16px");
+  const [font, setFont] = React.useState<string>("0");
+  const [color, setColor] = React.useState<string>("[0,0,0]");
+  const [size, setSize] = React.useState<string>("0");
+  const [thickness, setThickness] = React.useState<string>("0");
   const handleCSVUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -33,10 +34,14 @@ const CertificateDashboard = () => {
     setColor(event.target.value);
   };
 
-  const handleSizeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleSizeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSize(event.target.value);
   };
 
+  const handleThicknessChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setThickness(event.target.value);
+  };
+  
   const [previewContent, setPreviewContent] = useState<{
     subject: string;
     body: string;
@@ -100,12 +105,36 @@ const CertificateDashboard = () => {
     }
   };
 
-  const handlePreviewAndSubmit = () => {
+  const handlePreviewAndSubmit = async () => {
     // Simulate a backend API call to get the processed image
-    setTimeout(() => {
-      const processedImage =
-        "https://via.placeholder.com/800x400?text=Processed+Image"; // Replace with real backend API response
+    try {
 
+      if (!uploadedImage) {
+        alert("No image uploaded");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("image", uploadedImage); // image file from input
+      formData.append("start", JSON.stringify(boundingBox?.startX)); // coordinates
+      formData.append("end", JSON.stringify(boundingBox?.startY)); // coordinates
+      formData.append("font", font); // font
+      formData.append("size", size); // size
+      formData.append("color", color); // color
+      formData.append("thickness", thickness); // thickness
+      
+      const response = await fetch("http://localhost:5000/certificate-preview", {
+        method: "POST",
+        body: formData,
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Failed to generate certificate preview: ${response.statusText}`);
+      }
+  
+      // Parse response and generate object URL for the processed image
+      const blob = await response.blob();
+      const processedImage = URL.createObjectURL(blob); // Replace with real backend API response
       const sanitizedSubject = DOMPurify.sanitize(subject);
       const sanitizedBody = DOMPurify.sanitize(body, {
         WHOLE_DOCUMENT: true,
@@ -191,12 +220,45 @@ const CertificateDashboard = () => {
         body: sanitizedBody,
         image: processedImage,
       });
-    }, 1000);
+    } catch (error) {
+    console.error("Error generating preview:", (error as Error).message);
+  }
   };
 
   const handleCancelPreview = () => {
     setPreviewContent(null);
   };
+
+  const handleSubmitEmails = async () => {
+    if (!csvFile || !uploadedImage){
+      alert("Please upload both a CSV file and an image before submitting.");
+      return;
+    }
+    const formData = new FormData();
+    formData.append("file", csvFile, "data.csv");
+    formData.append("image", uploadedImage); // image file from input
+    formData.append("start", JSON.stringify(boundingBox?.startX)); // coordinates
+    formData.append("end", JSON.stringify(boundingBox?.startY)); // coordinates
+    formData.append("font", font); // font
+    formData.append("size", size); // size
+    formData.append("color", color); // color
+    formData.append("thickness", thickness); // thickness
+    formData.append("subject", subject);
+    formData.append("body", body);
+    try {
+      const response = await fetch("http://localhost:5000/certificate-sender", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to send emails: ${response.status} ${response.statusText}`);
+      }
+      const result = await response.json();
+      alert(JSON.stringify(result.message));
+    } catch (error){
+      console.error("Error sending emails:", (error as Error).message);
+    }
+  }
 
   const calculateBoxStyle = () => {
     if (!boundingBox || !imageRef.current) return {};
@@ -305,7 +367,7 @@ const CertificateDashboard = () => {
 
       <div className="flex justify-center gap-4 lg:gap-6 w-full max-w-6xl mt-6">
         {/* certificate image */}
-        <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-full max-w-sm md:w-1/2 flex flex-col items-center relative">
+        <div className="bg-white shadow-md rounded-lg p-4 lg:p-6 w-full max-w-lg md:w-1/2 flex flex-col items-center relative">
           <h2 className="text-gray-900 font-bold text-lg mb-4 text-center">
             Upload Image
           </h2>
@@ -313,7 +375,7 @@ const CertificateDashboard = () => {
           <input
             type="file"
             accept="image/*"
-            className="text-sm text-gray-600 mb-4 w-full max-w-xs"
+            className="text-sm text-gray-600 mb-4 ml-28 w-full max-w-xs"
             onChange={handleImageUpload}
           />
 
@@ -331,10 +393,14 @@ const CertificateDashboard = () => {
                 className="border-gray-300 border rounded-md p-2 text-gray-800"
                 onChange={handleFontChange}
               >
-                <option value="Arial">Arial</option>
-                <option value="Times New Roman">Times New Roman</option>
-                <option value="Calibri">Calibri</option>
-                <option value="Comic Sans">Comic Sans</option>
+                <option value="0">FONT_HERSHEY_SIMPLEX</option>
+                <option value="1">FONT_HERSHEY_PLAIN</option>
+                <option value="2">FONT_HERSHEY_DUPLEX</option>
+                <option value="3">FONT_HERSHEY_COMPLEX</option>
+                <option value="4">FONT_HERSHEY_TRIPLEX</option>
+                <option value="5">FONT_HERSHEY_COMPLEX_SMALL</option>
+                <option value="6">FONT_HERSHEY_SCRIPT_SIMPLEX</option>
+                <option value="7">FONT_HERSHEY_SCRIPT_COMPLEX</option>
               </select>
             </div>
 
@@ -345,7 +411,7 @@ const CertificateDashboard = () => {
               >
                 Color:
               </label>
-              <select
+              {/* <select
                 id="color-select"
                 value={color}
                 className="border-gray-300 border rounded-md p-2 text-gray-800"
@@ -355,6 +421,18 @@ const CertificateDashboard = () => {
                 <option value="red">Red</option>
                 <option value="blue">Blue</option>
                 <option value="green">Green</option>
+              </select> */}
+              <select
+              id="color-select"
+              value={color} // Convert BGR array to a string for the `value` attribute
+              className="border-gray-300 border rounded-md p-2 text-gray-800"
+              onChange={handleColorChange}
+              >
+              <option value='[0, 0, 0]'>Black</option>
+              <option value='[0, 0, 255]'>Red</option>
+              <option value='[255, 0, 0]'>Blue</option>
+              <option value='[0, 255, 0]'>Green</option>
+              <option value='[255, 255, 255]'>White</option>
               </select>
             </div>
 
@@ -365,17 +443,31 @@ const CertificateDashboard = () => {
               >
                 Size:
               </label>
-              <select
-                id="size-select"
-                value={size}
-                className="border-gray-300 border rounded-md p-2 text-gray-800"
-                onChange={handleSizeChange}
+              <input
+              id="size-select"
+              type="number"
+              step="0.1"  // Allows decimal values
+              value={size}
+              className="border-gray-300 border rounded-md p-2 text-gray-800"
+              onChange={handleSizeChange}
+            />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label
+                htmlFor="thickness-select"
+                className="text-gray-700 font-medium"
               >
-                <option value="12px">12px</option>
-                <option value="16px">16px</option>
-                <option value="20px">20px</option>
-                <option value="24px">24px</option>
-              </select>
+                Thickness:
+              </label>
+              <input
+              id="thickness-select"
+              type="number"
+              step="1"  // Allows decimal values
+              value={thickness}
+              className="border-gray-300 border rounded-md p-2 text-gray-800"
+              onChange={handleThicknessChange}
+            />
             </div>
           </div>
 
@@ -464,7 +556,7 @@ const CertificateDashboard = () => {
                 Cancel
               </button>
               <button
-                onClick={() => alert("Preview Submitted Successfully!")}
+                onClick={handleSubmitEmails}
                 className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition"
               >
                 Submit
@@ -483,6 +575,9 @@ const CertificateDashboard = () => {
           style={{ width: "67%" }}
         ></div>
       </div>
+      <button className="fixed bottom-8 right-8 bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition">
+        Download CSV
+      </button>
     </div>
   );
 };
